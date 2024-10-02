@@ -56,7 +56,7 @@ export default function Login() {
     <div className="flex items-center justify-center min-h-screen">
       <Card className="w-[400px] shadow-lg">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center">Kontacto</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center">Contactzz</CardTitle>
           <CardDescription className="text-center">Your smart contact manager</CardDescription>
         </CardHeader>
         <CardContent>
