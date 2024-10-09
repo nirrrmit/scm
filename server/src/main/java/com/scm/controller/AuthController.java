@@ -1,12 +1,12 @@
 package com.scm.controller;
 
-import com.scm.dto.AuthResponse;
 import com.scm.dto.SignUpRequest;
 import com.scm.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,18 +15,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-//    TODO: Implement JwtService OR write methods here
-//    private final JwtService jwtService;
-
-    @Autowired
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody SignUpRequest signUpRequest) {
-        System.out.println("PENGUIN");
-        AuthResponse authResponse = authService.register(signUpRequest);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
+    public ResponseEntity<Void> register(@Valid @RequestBody SignUpRequest signUpRequest) {
+        ResponseCookie responseCookie = authService.register(signUpRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .build();
     }
 
     @GetMapping("/test")
@@ -36,7 +32,7 @@ public class AuthController {
 
 
 //    @PostMapping("/login")
-//    public ResponseEntity<AuthResponse> authenticate(@RequestBody LoginRequest loginRequest) {
+//    public ResponseEntity<Void> authenticate(@RequestBody LoginRequest loginRequest) {
 //        User authenticatedUser = authenticationService.authenticate(loginUserDto);
 //
 //        String jwtToken = jwtService.generateToken(authenticatedUser);

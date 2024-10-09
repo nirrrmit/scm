@@ -1,6 +1,5 @@
 package com.scm.service;
 
-import com.scm.dto.AuthResponse;
 import com.scm.dto.SignUpRequest;
 import com.scm.exception.DuplicatedUserInfoException;
 import com.scm.exception.InvalidDataException;
@@ -9,11 +8,15 @@ import com.scm.model.entity.UserAuth;
 import com.scm.repository.UserAuthRepository;
 import com.scm.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
+
+    @Autowired
+    private JwtService jwtService;
 
     @Autowired
     private UserRepository userRepository;
@@ -24,8 +27,7 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public AuthResponse register(SignUpRequest signUpRequest) {
-
+    public ResponseCookie register(SignUpRequest signUpRequest) {
         if (!signUpRequest.getPassword().equals(signUpRequest.getConfirmPassword())) {
             throw new InvalidDataException("Passwords do not match!");
         }
@@ -42,13 +44,20 @@ public class AuthService {
 
         // Create and save UserAuth entity for credentials
         UserAuth userDetails = UserAuth.builder()
-                                        .user(newUser)
-                                        .password(hashPassword(signUpRequest.getPassword()))
-                                        .build();
+                                    .user(newUser)
+                                    .password(hashPassword(signUpRequest.getPassword()))
+                                    .build();
 
         userAuthRepository.save(userDetails);
 
-        return new AuthResponse("token");
+        String jwt = jwtService.createToken(signUpRequest.getEmail());
+
+        return ResponseCookie.from("jwt", jwt)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(3600)
+                .build();
     }
 
     private String hashPassword(String password) {
