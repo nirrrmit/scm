@@ -1,22 +1,33 @@
 package com.scm.service;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.scm.exception.JwtException;
+import com.scm.model.entity.User;
+import com.scm.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Date;
 
-@Component
+@Service
 public class JwtService {
 
     @Value("${security.jwt.secret-key}")
     private String secretKey;
 
+    @Autowired
+    private UserRepository userRepository;
+
     public String createToken(String email) {
-        System.out.println("Creating token for email: " + email);
+
         Date now = new Date();
 
         try {
@@ -29,17 +40,12 @@ public class JwtService {
         }
     }
 
-//    public Authentication validateToken(String token) {
-//        Algorithm algorithm = Algorithm.HMAC256(secretKey);
-//
-//        JWTVerifier verifier = JWT.require(algorithm)
-//                .build();
-//
-//        DecodedJWT decoded = verifier.verify(token);
-//
-//        UserDto user = userService.findByLogin(decoded.getSubject());
-//
-//        return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
-//    }
+    public Authentication validateToken(String token) {
+        Algorithm algorithm = Algorithm.HMAC256(secretKey);
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decoded = verifier.verify(token);
+        User user = userRepository.findByEmail(decoded.getSubject()).get();
+        return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
+    }
 
 }

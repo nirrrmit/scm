@@ -1,5 +1,6 @@
 package com.scm.controller;
 
+import com.scm.dto.LoginRequest;
 import com.scm.dto.SignUpRequest;
 import com.scm.service.AuthService;
 import jakarta.validation.Valid;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
 public class AuthController {
 
     private final AuthService authService;
@@ -25,20 +25,16 @@ public class AuthController {
                 .build();
     }
 
-    @GetMapping("/test")
-    public String testEndpoint() {
-        return "Controller is working!";
+    @PostMapping("/login")
+    public ResponseEntity<Void> authenticate(@Valid @RequestBody LoginRequest loginRequest) {
+        ResponseCookie responseCookie = authService.authenticate(loginRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .build();
     }
 
-
-//    @PostMapping("/login")
-//    public ResponseEntity<Void> authenticate(@RequestBody LoginRequest loginRequest) {
-//        User authenticatedUser = authenticationService.authenticate(loginUserDto);
-//
-//        String jwtToken = jwtService.generateToken(authenticatedUser);
-//
-//        LoginResponse loginResponse = new LoginResponse().setToken(jwtToken).setExpiresIn(jwtService.getExpirationTime());
-//
-//        return ResponseEntity.ok(loginResponse);
-//    }
+    @GetMapping("/protected")
+    public String test() {
+        return "System is protected for registered users only";
+    }
 }
