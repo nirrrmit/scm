@@ -6,7 +6,6 @@ import com.scm.exception.DuplicateUserException;
 import com.scm.exception.InvalidDataException;
 import com.scm.exception.UserDoesNotExistException;
 import com.scm.model.entity.User;
-import com.scm.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +18,7 @@ import java.util.Optional;
 public class AuthService {
 
     private JwtService jwtService;
-    private UserRepository userRepository;
+    private UserService userService;
     private PasswordEncoder passwordEncoder;
 
     public ResponseCookie register(SignUpRequest signUpRequest) {
@@ -27,7 +26,7 @@ public class AuthService {
             throw new InvalidDataException("Passwords do not match!");
         }
 
-        if(userRepository.findByEmail(signUpRequest.getEmail()).isPresent()) {
+        if(userService.findUserByEmail(signUpRequest.getEmail()).isPresent()) {
             throw new DuplicateUserException("Email already exists");
         }
 
@@ -37,7 +36,7 @@ public class AuthService {
                         .password(hashPassword(signUpRequest.getPassword()))
                         .build();
 
-        userRepository.save(newUser);
+        userService.saveUser(newUser);
 
         String jwt = jwtService.createToken(signUpRequest.getEmail());
 
@@ -51,7 +50,7 @@ public class AuthService {
 
     public ResponseCookie authenticate(LoginRequest loginRequest) {
 
-        Optional<User> user = userRepository.findByEmail(loginRequest.getEmail());
+        Optional<User> user = userService.findUserByEmail(loginRequest.getEmail());
 
         if(user.isEmpty()) {
             throw new UserDoesNotExistException("User does not exist");
