@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Icons } from "@/components/ui/icons"
+
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
     const [email, setEmail] = useState('')
@@ -16,41 +17,77 @@ export default function Login() {
     const handlePasswordChange = (e) => setPassword(e.target.value)
     const handleConfirmPasswordChange = (e) => setConfirmPassword(e.target.value)
 
+    const navigate = useNavigate();
+
+    const apiUrl = import.meta.env.VITE_API_URL;
+
     const handleSignUp = async (e) => {
-        e.preventDefault()
-        setError(null)
+        e.preventDefault();
+        setError(null);
+
         if (password !== confirmPassword) {
-            setError("Passwords do not match")
-            return
+            setError("Passwords do not match");
+            return;
         }
-        const { error } = await supabase.auth.signUp({ email, password })
-        if (error) {
-            setError(error.message)
-        } else {
-            router.push('/verify-email')
+
+        const signUpRequest = {
+            email,
+            password,
+            confirmPassword,
+        };
+
+        try {
+            const response = await fetch(`${apiUrl}/signup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(signUpRequest),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.message);
+                return;
+            }
+
+            navigate('/test');
+
+        } catch (error) {
+            setError("An unexpected error occurred: " + error.message);
         }
-    }
+    };
+
 
     const handleSignIn = async (e) => {
-        e.preventDefault()
-        setError(null)
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error) {
-            setError(error.message)
-        } else {
-            router.push('/dashboard')
-        }
-    }
+        e.preventDefault();
+        setError(null);
 
-    const handleGoogleSignIn = async () => {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
-            },
-        })
-        if (error) {
-            setError(error.message)
+        const signUpRequest = {
+            email,
+            password
+        };
+
+        try {
+            const response = await fetch(`${apiUrl}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(signUpRequest),
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.message);
+                return;
+            }
+
+            navigate('/test');
+            
+        } catch (error) {
+            setError("An unexpected error occurred: " + error.message);
         }
     }
 
@@ -100,18 +137,6 @@ export default function Login() {
                     </Tabs>
                 </CardContent>
                 <CardFooter className="flex flex-col">
-                    <div className="relative my-4 w-full">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-white px-2 text-slate-500 font-normal">Or continue with</span>
-                        </div>
-                    </div>
-                    <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
-                        <Icons.google className="mr-2 h-4 w-4" />
-                        Google
-                    </Button>
                     {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
                 </CardFooter>
             </Card>
