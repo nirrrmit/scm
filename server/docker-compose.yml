@@ -1,16 +1,15 @@
 services:
-  mysql:
-    image: mysql:latest
-    container_name: mysql-db
+  postgres:
+    image: postgres:latest
+    container_name: postgres-db
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-scm}
-      MYSQL_USER: ${MYSQL_USER:-user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-userpassword}
+      POSTGRES_DB: ${POSTGRES_DATABASE:-scm}
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-userpassword}
     ports:
-      - "3306:3306"
+      - 5432:5432
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - my-network
 
@@ -20,16 +19,16 @@ services:
       dockerfile: Dockerfile
     container_name: spring-app
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/scm
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: userpassword
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST:-postgres}:5432/${DB_NAME:-scm}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-user}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-userpassword}
     ports:
       - "8080:8080"
     networks:
       - my-network
 
 volumes:
-  mysql_data:
+  postgres_data:
 
 networks:
   my-network:
