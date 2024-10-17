@@ -28,13 +28,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Void> authenticate(@Valid @RequestBody LoginRequest loginRequest) {
         ResponseCookie responseCookie = authService.authenticate(loginRequest);
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .build();
-    }
-
-    @GetMapping("/protected")
-    public String test() {
-        return "System is protected for registered users only";
     }
 }

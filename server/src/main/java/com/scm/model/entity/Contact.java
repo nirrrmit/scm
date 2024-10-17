@@ -1,6 +1,7 @@
 package com.scm.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 
 @Entity
@@ -9,7 +10,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "contact")
+@Table(name = "contact", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"email", "user_id"})
+})
 public class Contact {
 
     @Id
@@ -19,7 +22,11 @@ public class Contact {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+
+    @Email
+    @Column(nullable = false)
     private String email;
+
     private String about;
     private boolean favorite;
 
