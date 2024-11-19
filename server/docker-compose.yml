@@ -17,7 +17,7 @@ services:
     build:
       context: .  # Path to Dockerfile (the current directory)
       dockerfile: Dockerfile
-    container_name: spring-app
+    container_name: scm-server
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST:-postgres}:5432/${DB_NAME:-scm}
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-user}
