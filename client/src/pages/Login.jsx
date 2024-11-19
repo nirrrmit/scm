@@ -51,7 +51,7 @@ export default function Login() {
                 return;
             }
 
-            navigate('/test');
+            navigate('/dashboard');
 
         } catch (error) {
             setError("An unexpected error occurred: " + error.message);
@@ -84,7 +84,7 @@ export default function Login() {
                 return;
             }
 
-            navigate('/test');
+            navigate('/dashboard');
             
         } catch (error) {
             setError("An unexpected error occurred: " + error.message);
