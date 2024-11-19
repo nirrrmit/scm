@@ -26,7 +26,7 @@ public class ContactsController {
         return ResponseEntity.ok(contacts);
     }
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<ContactDTO> addContact(@CurrentUser User user, @Valid @RequestBody Contact contact) {
         contact.setUser(user);
         ContactDTO savedContact = contactService.save(contact);

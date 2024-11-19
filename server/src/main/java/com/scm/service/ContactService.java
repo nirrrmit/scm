@@ -36,6 +36,7 @@ public class ContactService {
 
     private ContactDTO convertToDTO(Contact contact) {
         return ContactDTO.builder()
+                .id(contact.getId())
                 .firstName(contact.getFirstName())
                 .lastName(contact.getLastName())
                 .phoneNumber(contact.getPhoneNumber())
