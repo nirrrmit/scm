@@ -2,6 +2,7 @@ package com.scm.service;
 
 import com.scm.dto.ContactDTO;
 import com.scm.exception.InvalidDataException;
+import com.scm.exception.ResourceNotFoundException;
 import com.scm.model.entity.Contact;
 import com.scm.model.entity.User;
 import com.scm.repository.ContactRepository;
@@ -32,6 +33,15 @@ public class ContactService {
         } catch (DataIntegrityViolationException e) {
             throw new InvalidDataException("Email already exists for this user");
         }
+    }
+
+    public Contact findByIdAndUser(Long contactId, User user) {
+        return contactRepository.findByIdAndUser(contactId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Contact not found or does not belong to the user"));
+    }
+
+    public void delete(Contact contact) {
+        contactRepository.delete(contact);
     }
 
     private ContactDTO convertToDTO(Contact contact) {

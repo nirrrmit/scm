@@ -32,4 +32,40 @@ public class ContactsController {
         ContactDTO savedContact = contactService.save(contact);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedContact);
     }
+
+    @PutMapping("/{contactId}")
+    public ResponseEntity<ContactDTO> updateContact(
+            @CurrentUser User user,
+            @PathVariable Long contactId,
+            @Valid @RequestBody Contact updatedContact) {
+
+        // Ensure the contact belongs to the current user
+        Contact existingContact = contactService.findByIdAndUser(contactId, user);
+        if (existingContact == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        // Update contact details
+        existingContact.setFirstName(updatedContact.getFirstName());
+        existingContact.setLastName(updatedContact.getLastName());
+        existingContact.setPhoneNumber(updatedContact.getPhoneNumber());
+        existingContact.setEmail(updatedContact.getEmail());
+        existingContact.setAbout(updatedContact.getAbout());
+        existingContact.setFavorite(updatedContact.isFavorite());
+
+        ContactDTO savedContact = contactService.save(existingContact);
+        return ResponseEntity.ok(savedContact);
+    }
+
+    @DeleteMapping("/{contactId}")
+    public ResponseEntity<Void> deleteContact(@CurrentUser User user, @PathVariable Long contactId) {
+        // Ensure the contact belongs to the current user
+        Contact existingContact = contactService.findByIdAndUser(contactId, user);
+        if (existingContact == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        contactService.delete(existingContact);
+        return ResponseEntity.noContent().build();
+    }
 }
