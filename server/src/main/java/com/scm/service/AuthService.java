@@ -68,6 +68,7 @@ public class AuthService {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
+                .sameSite("None")
                 .maxAge(3600)
                 .build();
     }
