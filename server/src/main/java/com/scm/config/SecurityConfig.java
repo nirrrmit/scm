@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/login", "/signup").permitAll()
                         .anyRequest().authenticated())
                         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
