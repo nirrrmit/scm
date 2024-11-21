@@ -7,7 +7,6 @@ import com.scm.exception.InvalidDataException;
 import com.scm.exception.UserDoesNotExistException;
 import com.scm.model.entity.User;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,56 +20,42 @@ public class AuthService {
     private UserService userService;
     private PasswordEncoder passwordEncoder;
 
-    public ResponseCookie register(SignUpRequest signUpRequest) {
+    public String register(SignUpRequest signUpRequest) {
         if (!signUpRequest.getPassword().equals(signUpRequest.getConfirmPassword())) {
             throw new InvalidDataException("Passwords do not match!");
         }
 
-        if(userService.findUserByEmail(signUpRequest.getEmail()).isPresent()) {
+        if (userService.findUserByEmail(signUpRequest.getEmail()).isPresent()) {
             throw new DuplicateUserException("Email already exists");
         }
 
         // Create and save User entity
         User newUser = User.builder()
-                        .email(signUpRequest.getEmail())
-                        .password(hashPassword(signUpRequest.getPassword()))
-                        .build();
+                .email(signUpRequest.getEmail())
+                .password(hashPassword(signUpRequest.getPassword()))
+                .build();
 
         userService.saveUser(newUser);
 
-        String jwt = jwtService.createToken(signUpRequest.getEmail());
-
-        return ResponseCookie.from("jwt", jwt)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(3600)
-                .build();
+        // Generate and return JWT
+        return jwtService.createToken(signUpRequest.getEmail());
     }
 
-    public ResponseCookie authenticate(LoginRequest loginRequest) {
-
+    public String authenticate(LoginRequest loginRequest) {
         Optional<User> user = userService.findUserByEmail(loginRequest.getEmail());
 
-        if(user.isEmpty()) {
+        if (user.isEmpty()) {
             throw new UserDoesNotExistException("User does not exist");
         }
 
         String hashedPassword = user.get().getPassword();
 
-        if(!passwordEncoder.matches(loginRequest.getPassword(), hashedPassword)) {
+        if (!passwordEncoder.matches(loginRequest.getPassword(), hashedPassword)) {
             throw new InvalidDataException("Invalid Password");
         }
 
-        String jwt = jwtService.createToken(loginRequest.getEmail());
-
-        return ResponseCookie.from("jwt", jwt)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .sameSite("None")
-                .maxAge(3600)
-                .build();
+        // Generate and return JWT
+        return jwtService.createToken(loginRequest.getEmail());
     }
 
     private String hashPassword(String password) {

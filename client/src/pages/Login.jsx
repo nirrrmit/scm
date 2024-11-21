@@ -51,6 +51,8 @@ export default function Login() {
                 return;
             }
 
+            const token = response.headers.get('Authorization').split(' ')[1];
+            localStorage.setItem('jwt', token);
             navigate('/dashboard');
 
         } catch (error) {
@@ -74,8 +76,7 @@ export default function Login() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(signUpRequest),
-                credentials: 'include'
+                body: JSON.stringify(signUpRequest)
             });
 
             if (!response.ok) {
@@ -84,8 +85,10 @@ export default function Login() {
                 return;
             }
 
+            const token = response.headers.get('Authorization').split(' ')[1];
+            localStorage.setItem('jwt', token);
             navigate('/dashboard');
-            
+
         } catch (error) {
             setError("An unexpected error occurred: " + error.message);
         }

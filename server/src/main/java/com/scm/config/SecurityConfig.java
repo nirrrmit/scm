@@ -35,8 +35,8 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/login", "/signup").permitAll()
                         .anyRequest().authenticated())
-                        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout((logout) -> logout.deleteCookies("jwt").logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler()));
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout(logout -> logout.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler()));
 
         return http.build();
     }
@@ -47,8 +47,8 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", new CorsConfiguration() {{
             setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             setAllowCredentials(true);
-            setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.AUTHORIZATION, HttpHeaders.SET_COOKIE));
-            setExposedHeaders(List.of(HttpHeaders.SET_COOKIE));
+            setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.AUTHORIZATION));
+            setExposedHeaders(List.of(HttpHeaders.AUTHORIZATION));
             addAllowedOriginPattern("*"); // Allow from any origin
         }});
         return source;

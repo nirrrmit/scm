@@ -24,6 +24,8 @@ export function ContactFormModal({ isOpen, onClose, onSubmit, existingContact })
 
 	const apiUrl = import.meta.env.VITE_API_URL;
 
+	const jwtToken = localStorage.getItem("jwt") || "";
+
 	useEffect(() => {
 		if (existingContact) {
 			setFirstName(existingContact.firstName)
@@ -56,10 +58,10 @@ export function ContactFormModal({ isOpen, onClose, onSubmit, existingContact })
 				{
 					method: existingContact ? 'PUT' : 'POST', // Use PUT for editing
 					headers: {
-						'Content-Type': 'application/json',
+						"Content-Type": "application/json",
+						"Authorization": `Bearer ${jwtToken}`,
 					},
-					body: JSON.stringify(contactData),
-					credentials: 'include',
+					body: JSON.stringify(contactData)
 				}
 			);
 	

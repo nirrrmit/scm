@@ -14,12 +14,16 @@ export default function Dashboard() {
 
     const navigate = useNavigate();
 
+    const jwtToken = localStorage.getItem("jwt") || "";
+
     const fetchContacts = async () => {
         try {
             const response = await fetch(`${apiUrl}/contacts`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${jwtToken}`,
+                }
             });
 
             if (!response.ok) {
@@ -47,18 +51,20 @@ export default function Dashboard() {
         if (editingContact) {
             setContacts(contacts.map(c => c.id === contactData.id ? contactData : c))
         } else {
-            setContacts([...contacts, { ...contactData}])
+            setContacts([...contacts, { ...contactData }])
         }
     }
 
     const handleDelete = async (id) => {
         try {
             const response = await fetch(`${apiUrl}/contacts/${id}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${jwtToken}`,
+                }
             });
-    
+
             if (!response.ok) {
                 if (response.status === 403) {
                     console.error('Unauthorized access. Redirecting to login.');
@@ -67,14 +73,14 @@ export default function Dashboard() {
                 }
                 throw new Error(`Failed to delete contact. Status: ${response.status}`);
             }
-    
+
             // If the delete was successful, remove the contact from state
             setContacts((prevContacts) => prevContacts.filter((contact) => contact.id !== id));
         } catch (error) {
             console.error('Error deleting contact:', error.message);
         }
     };
-    
+
 
     return (
         <div className="min-h-screen flex flex-col">

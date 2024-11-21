@@ -27,24 +27,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse httpServletResponse,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        // Get all cookies from the request
-        Cookie[] cookies = httpServletRequest.getCookies();
+        // Retrieve the JWT from the Authorization header
+        String authorizationHeader = httpServletRequest.getHeader("Authorization");
 
-        if (cookies != null) {
-            // Retrieve the JWT from the "jwt" cookie
-            Cookie jwtCookie = Arrays.stream(cookies)
-                    .filter(cookie -> "jwt".equals(cookie.getName()))
-                    .findFirst()
-                    .orElse(null);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String jwt = authorizationHeader.substring(7); // Remove "Bearer " prefix
 
-            if (jwtCookie != null) {
-                String jwt = jwtCookie.getValue();
-                try {
-                    SecurityContextHolder.getContext().setAuthentication(jwtService.validateToken(jwt));
-                } catch (RuntimeException e) {
-                    SecurityContextHolder.clearContext();
-                    throw e;
-                }
+            try {
+                // Validate the JWT and set the authentication in the security context
+                SecurityContextHolder.getContext().setAuthentication(jwtService.validateToken(jwt));
+            } catch (RuntimeException e) {
+                // Clear the security context in case of an error
+                SecurityContextHolder.clearContext();
+                throw e;
             }
         }
 

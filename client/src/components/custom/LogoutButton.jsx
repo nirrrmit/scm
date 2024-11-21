@@ -8,17 +8,20 @@ export function LogoutButton() {
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  const jwtToken = localStorage.getItem("jwt") || "";
+
   const handleLogout = async () => {
     try {
         const response = await fetch(`${apiUrl}/logout`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${jwtToken}`,
             },
-            credentials: "include",
         });
 
         if (response.ok) {
+            localStorage.removeItem("jwt");
             navigate("/");
         } else {
             console.error("Logout failed:", response.statusText);
@@ -26,7 +29,7 @@ export function LogoutButton() {
     } catch (error) {
         console.error("An error occurred during logout:", error.message);
     }
-};
+  };
 
   return (
     <Button onClick={handleLogout} variant="outline" className="bg-white text-black hover:bg-gray-200">
@@ -34,4 +37,3 @@ export function LogoutButton() {
     </Button>
   );
 }
-
